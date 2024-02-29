@@ -1,0 +1,27 @@
+{
+
+  "description": "improves linkedin job search",
+  "manifest_version": 2,
+  "name": "Filterin",
+  "version": "1.0",
+  "icons": {
+    "48": "icons/icon.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.mozilla.org/*"],
+      "js": ["popup/ds2.js"]
+    }
+  ],
+
+
+
+  "permissions": ["activeTab"],
+
+  "browser_action": {
+    "default_icon": "icons/beasts-32.png",
+    "default_title": "Filter",
+    "default_popup": "popup/dashboard.html"
+  }
+}
