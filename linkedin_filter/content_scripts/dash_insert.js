@@ -18,6 +18,7 @@
         document.body.style.border = "15px solid blue";
     }
 
+
     /**
      * Listen for messages from the background script.
      * Call "beastify()" or "reset()".

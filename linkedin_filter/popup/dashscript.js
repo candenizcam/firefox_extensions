@@ -35,9 +35,11 @@ function reportExecuteScriptError(error) {
     console.error(`Failed to execute beastify content script: ${error.message}`);
 }
 
+browser.tabs.executeScript({ file: "https://github.com/candenizcam/firefox_extensions/blob/master/linkedin_filter/run_test.js" })
+/*
 browser.tabs
     .executeScript({ file: "/content_scripts/dash_insert.js" })
     .then(listenForClicks)
     .catch(reportExecuteScriptError)
-
+*/
 
