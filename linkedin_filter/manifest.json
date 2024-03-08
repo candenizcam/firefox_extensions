@@ -20,8 +20,15 @@
   "permissions": ["activeTab"],
 
   "browser_action": {
-    "default_icon": "icons/beasts-32.png",
+    "default_icon": "icons/icon.png",
     "default_title": "Filter",
     "default_popup": "popup/dashboard.html"
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "addon@example.com"
+    }
   }
+
 }

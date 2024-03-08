@@ -8,10 +8,22 @@ function listenForClicks() {
             return;
         }
 
-        function reset(tabs) {
+        function action(tabs) {
+            let command;
+            if(e.target.id==="mark"){
+                command = "c1";
+                document.body.style.border = "5px solid green";
+            }else if(e.target.id==="remove"){
+                command = "c2";
+                document.body.style.border = "5px solid blue";
+            }else if(e.target.id==="remove-refresh"){
+                command = "c3";
+                document.body.style.border = "5px solid red";
+            }
+
 
             browser.tabs.sendMessage(tabs[0].id, {
-                command: "dash_1",
+                command: command,
             });
         }
 
@@ -19,9 +31,11 @@ function listenForClicks() {
 
         }
 
+
+
         browser.tabs
             .query({ active: true, currentWindow: true })
-            .then(reset)
+            .then(action)
             .catch(reportError);
     })
 
@@ -35,11 +49,16 @@ function reportExecuteScriptError(error) {
     console.error(`Failed to execute beastify content script: ${error.message}`);
 }
 
-browser.tabs.executeScript({ file: "https://github.com/candenizcam/firefox_extensions/blob/master/linkedin_filter/run_test.js" })
-/*
+
 browser.tabs
     .executeScript({ file: "/content_scripts/dash_insert.js" })
     .then(listenForClicks)
     .catch(reportExecuteScriptError)
-*/
+
+
+
+
+
+
+
 
