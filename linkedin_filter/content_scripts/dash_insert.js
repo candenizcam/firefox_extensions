@@ -1,3 +1,5 @@
+var record_text = "";
+
 (function() {
     /**
      * Check and set a global guard variable.
@@ -89,7 +91,7 @@
     function processThis(boy){
         let killButton = boy.querySelector('button');
         try {
-            if(killButton.ariaLabel === "Dismiss job"){ // if card is alive
+            if(killButton.ariaLabel.includes("Dismiss")){ // if card is alive
                 if(howYouMatch() || cardHandler(boy)){
                     killButton.click();
                 }else{
@@ -104,22 +106,23 @@
         }
     }
 
-    function crawlStep(c, index){
+    function crawlStep(c, index, processFunction, finalFunction){
         if(c.length> index){
             let boy = c[index].querySelector('[data-view-name~="job-card"]');
             if (boy.ariaCurrent ==="page"){
-                processThis(c[index])
+                processFunction(c[index])
 
                 // we are done, move on
                 if(c.length-1>index){
                     stepToCard(c[index+1],5000,()=>{
-                        return crawlStep(c, index+1)
+                        return crawlStep(c, index+1, processFunction, finalFunction)
                     })
                 }else{
+                    finalFunction();
                     return;
                 }
             }else{
-                return crawlStep(c, index+1)
+                return crawlStep(c, index+1, processFunction, finalFunction)
             }
         }else{
             return; //list done
@@ -149,12 +152,58 @@
     }
 
 
-    function crawlToNext(index ){
+    function crawlToNext(index, timeout, processFunction, finalFunction ){
         let elements = document. getElementsByClassName("scaffold-layout__list-container");
         let c  = elements[0].children;
-        stepToCard(c[index], 5000,()=>{
-            crawlStep(c, index);
+        stepToCard(c[index], timeout,()=>{
+            crawlStep(c, index, processFunction, finalFunction);
         })
+    }
+
+    function record(text, filename){
+        var tempLink = document.createElement("a");
+        //const link = document.querySelector('a.simple');
+
+
+        var textBlob = new Blob([text], {type: 'text/plain'});
+
+        tempLink.setAttribute('href', URL.createObjectURL(textBlob));
+
+        tempLink.setAttribute('download', filename+".txt");
+
+        tempLink.click()
+
+        URL.revokeObjectURL(tempLink.href);
+
+        tempLink.remove()
+    }
+
+
+    function cardText(boy){
+        let b1  =boy.getElementsByClassName("flex-grow-1 artdeco-entity-lockup__content ember-view")[0]
+        let l0 = "job: "+ b1.children[0].textContent.trim() + ";\n"
+        let l1 = "com: "+ b1.children[1].textContent.trim() + ";\n"
+        let l2 = "loc: "+ b1.children[2].textContent.trim() + ";\n"
+        let l3 = "res: "+ b1.children[3].textContent.split(";\n").map( (item)=>{return item.trim()} ).filter((a)=>a.length>0).join(", ") + "\n"
+
+        return l0 + l1 + l2 + l3;
+    }
+
+    function bigText(){
+        let home = document.getElementsByClassName("jobs-details__main-content jobs-details__main-content--single-pane full-width")[0]
+        let big1 = home.getElementsByClassName("jobs-unified-top-card t-14")[0].textContent.split("\n").map((a)=>a.trim()).filter((a)=>a.length).join(", ")
+        let h2 = home.getElementsByClassName("mh4 pt4 pb3");
+        let big2 = "";
+        if (h2.length){
+            big2 = h2[0].textContent.split("\n").map((a)=>a.trim()).filter((a)=>a.length).join(", ")
+        }
+        let big3 = home.getElementsByClassName("jobs-description__content jobs-description-content")[0].children[0].children[1].textContent.trim()
+        let h4 = home.getElementsByClassName("job-details-how-you-match-card__header pt5 ph5 pb5")
+        let big4 = "";
+        if (h4.length){
+            big4=h4[0].textContent.split("\n").map((a)=>a.trim()).filter((a)=>a.length).join(", ")
+        }
+        return  big1 + ";\n" + big2 + ";\n" + big3 + ";\n" + big4 + ";\n"
     }
 
     /**
@@ -166,15 +215,49 @@
         if (message.command === "c1") {
             //c1();
             processThis(findActiveCard().item)
+            document.body.style.border = "10px solid green";
         }else if (message.command === "c2") {
             //c2();
-            crawlToNext(findActiveCard().index);
+            crawlToNext(findActiveCard().index, 5000,processThis, ()=>{
+                document.body.style.border = "10px solid green";
+            });
         }else if (message.command === "c3") {
 
-            crawlToNext(0);
+            crawlToNext(0,5000, processThis, ()=>{
+                document.body.style.border = "10px solid green";
+            });
 
             //c1();
         }
-        document.body.style.border = "10px solid green";
+        else if (message.command === "c4") {
+            record_text = "";
+            crawlToNext(0,1000, (boy)=>{
+                let killButton = boy.querySelector('button');
+                if(killButton.ariaLabel.includes("Dismiss")) { // if card is alive
+                    record_text += "****\n";
+                    record_text += cardText(boy)
+                    record_text += bigText()
+                }else{
+                }
+            }, ()=>{
+
+                const now = new Date();
+                let p1 = (now.getFullYear()-2000) + String(now.getMonth()).padStart(2,"0")+ String(now.getMonth()).padStart(2,"0")
+                let p2 = String(now.getHours()).padStart(2,"0") + String(now.getMinutes()).padStart(2,"0")
+
+                record(record_text, p1+"_"+p2)
+                //record_text = "";
+                document.body.style.border = "10px solid green";
+            })
+
+            //top part: jobs-unified-top-card t-14
+            // hirer: mh4 pt4 pb3
+            // desc: jobs-description__content jobs-description-content
+            //crawlToNext(0);
+
+            // temp2.textContent.split("\n").map((a)=>a.trim()).filter((a)=>a.length)
+            //c1();
+        }
+
     });
 })();

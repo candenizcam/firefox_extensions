@@ -19,6 +19,9 @@ function listenForClicks() {
             }else if(e.target.id==="remove-refresh"){
                 command = "c3";
                 document.body.style.border = "5px solid red";
+            }else if(e.target.id==="record"){
+                command = "c4";
+                document.body.style.border = "5px solid purple";
             }
 
 
